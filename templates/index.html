@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Support AI (Flask)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
+        <h1 class="text-2xl font-bold mb-4">Customer Support AI (Flask)</h1>
+        <div id="chat-container" class="mb-4 h-64 overflow-y-auto"></div>
+        <form id="query-form" class="flex">
+            <input type="text" id="query-input" class="flex-grow border rounded-l px-4 py-2" placeholder="Ask a question...">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-r">Send</button>
+        </form>
+    </div>
+    <script>
+        const form = document.getElementById('query-form');
+        const input = document.getElementById('query-input');
+        const chatContainer = document.getElementById('chat-container');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = input.value.trim();
+            if (!query) return;
+
+            addMessage('user', query);
+            input.value = '';
+
+            const response = await fetch('/ask', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({query})
+            });
+
+            const data = await response.json();
+            addMessage('ai', data.response);
+        });
+
+        function addMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `mb-2 ${sender === 'user' ? 'text-right' : ''}`;
+            messageDiv.innerHTML = `<span class="inline-block bg-${sender === 'user' ? 'blue' : 'gray'}-200 rounded px-2 py-1">${text}</span>`;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>
